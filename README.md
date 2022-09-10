@@ -1,1 +1,1 @@
-# SimultaneousDiagonalization
+# Algoritmos de Diagonalización Simultánea
