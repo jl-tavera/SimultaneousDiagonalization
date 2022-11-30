@@ -7,6 +7,7 @@ name = "pypi"
 pandas = "*"
 numpy = "*"
 ortools = "*"
+scipy = "*"
 
 [dev-packages]
 
