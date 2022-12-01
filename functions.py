@@ -1,6 +1,6 @@
 import numpy as np 
 from scipy.stats import ortho_group
-from ortools.linear_solver import pywraplp
+from scipy.optimize import minimize
 
 def normal_matrix(n):
     Q = ortho_group.rvs(dim = n)
@@ -67,10 +67,41 @@ def create_M_ij(A,B,i,j):
     
     return M
 
+def objective(M, x):
+    theta = x[0]
+    phi = x[1]
+
+    c = np.cos(theta)
+    s = np.exp(1j*phi)*np.sin(theta)
+
+    z = np.array([[np.square(c)],[np.sqrt(2)*c*s],[np.square(s)]])
+
+    return np.linalg.norm(M.dot(z))
+
+def constraint(x):
+    theta = x[0]
+    phi = x[1]
+
+    c = np.cos(theta)
+    s = np.exp(1j*phi)*np.sin(theta)
+
+    return np.square(abs(c)) + np.square(abs(s)) - 1
+
+def bnds():
+    b_1 = (-1*np.pi/4, np.pi/4)
+    b_2 = (-1*np.pi, np.pi)
+
+    bounds = (b_1, b_2)
+
+    return bounds
+
+
 def minimization(M):
    
 
     return None
+
+
     
 def SimultaneousDiag(normal_matrix, epsilon):
     A = normal_matrix[0]
