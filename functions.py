@@ -1,7 +1,8 @@
 import numpy as np 
 from scipy.stats import ortho_group
-from functools import partial
 from scipy.optimize import minimize
+from functools import partial
+
 
 
 def normal_matrix(n):
@@ -85,7 +86,7 @@ def create_e_vector(n, pos):
     return e_vector
 
 def create_Rij(n, i, j, sols):
-    # sols = sols.x
+    sols = sols.x
     identity = np.identity(n)
 
     theta = sols[0]
@@ -143,18 +144,15 @@ def bnds():
     bounds = (b_1, b_2)
 
     return bounds
-    return None
 
 np.set_printoptions(suppress=True, precision=4)
     
-epsilon = 0.01
-matrix = normal_matrix(3)
-print(matrix[2])
+epsilon = 0.000000000000000001
+matrix = normal_matrix(5)
 x_0 = (-1*np.pi/4, -1*np.pi)
 
 A = matrix[0]
 B = matrix[1]
-
 
 n = A.shape[0]
 Q = np.identity(n)
@@ -175,26 +173,29 @@ while off_two > epsilon_norm:
             M = create_M_ij(A,B,i,j)
             objective = partial(objective_function, M)
             sols = minimize(objective,x_0, method='SLSQP', bounds=bounds, constraints=cons)
-            R = create_Rij(n, i, j, [np.pi/10, np.pi/10])
+            R = create_Rij(n, i, j, sols)
             R = np.asmatrix(R)
             R_H = R.H
 
-            Q = Q @ R
-            Q_transpose = np.transpose(Q)
-
-
-            A = R_H @A@R
-            B = R_H @B@R
-
-            diag_A = Q_transpose @ A @ Q
-            print(sols.x)
-            print(diag_A)
+            C = R_H @A@R
+            D = R_H @B@R
 
             A_norm = np.linalg.norm(A)
             B_norm = np.linalg.norm(B)
+            
 
-            off_two = off_2(A, B)
-            print(off_two)
+            new_off_two = off_2(C, D)
+            
+
+            if new_off_two < off_two:
+                A = C
+                B = D
+
+                Q = Q @ R              
+                Q_transpose = np.transpose(Q)
+
+                off_two = new_off_two
+
             epsilon_norm = epsilon*(A_norm + B_norm)
 
 
